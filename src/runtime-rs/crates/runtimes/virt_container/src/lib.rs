@@ -22,9 +22,11 @@ use async_trait::async_trait;
 use common::{message::Message, RuntimeHandler, RuntimeInstance};
 use hypervisor::{dragonball::Dragonball, Hypervisor, HYPERVISOR_DRAGONBALL};
 use hypervisor::{qemu::Qemu, HYPERVISOR_QEMU};
+use hypervisor::stratovirt::StratoVirt;
 use kata_types::config::{
     hypervisor::register_hypervisor_plugin, DragonballConfig, QemuConfig, TomlConfig,
 };
+use kata_types::config::{hypervisor::HYPERVISOR_NAME_STRATOVIRT, StratoVirtConfig};
 
 #[cfg(feature = "cloud-hypervisor")]
 use hypervisor::ch::CloudHypervisor;
@@ -59,6 +61,9 @@ impl RuntimeHandler for VirtContainer {
             let ch_config = Arc::new(CloudHypervisorConfig::new());
             register_hypervisor_plugin(HYPERVISOR_NAME_CH, ch_config);
         }
+
+        let stratovirt_config = Arc::new(StratoVirtConfig::new());
+        register_hypervisor_plugin(HYPERVISOR_NAME_STRATOVIRT, stratovirt_config);
 
         Ok(())
     }
@@ -148,6 +153,14 @@ async fn new_hypervisor(toml_config: &TomlConfig) -> Result<Arc<dyn Hypervisor>>
                 .set_hypervisor_config(hypervisor_config.clone())
                 .await;
 
+            Ok(Arc::new(hypervisor))
+        }
+
+        HYPERVISOR_NAME_STRATOVIRT => {
+            let mut hypervisor = StratoVirt::new();
+            hypervisor
+                .set_hypervisor_config(hypervisor_config.clone())
+                .await;
             Ok(Arc::new(hypervisor))
         }
         _ => Err(anyhow!("Unsupported hypervisor {}", &hypervisor_name)),

@@ -30,7 +30,9 @@ use hypervisor_persist::HypervisorState;
 use kata_types::capabilities::Capabilities;
 use kata_types::config::hypervisor::Hypervisor as HypervisorConfig;
 
-pub use kata_types::config::hypervisor::HYPERVISOR_NAME_CH;
+pub use kata_types::config::hypervisor::{
+    HYPERVISOR_NAME_CH, HYPERVISOR_NAME_STRATOVIRT,
+};
 
 // Config which driver to use as vm root dev
 const VM_ROOTFS_DRIVER_BLK: &str = "virtio-blk-pci";
